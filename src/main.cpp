@@ -36,7 +36,7 @@ const int servoAuxPin = 27; // Servo auxiliar nuevo
 // Estado del sistema
 // ==========================
 char modo = 'P';
-int velocidad = 170; // ahora arranca alineado al paso de 5
+int velocidad = 0;
 
 // ==========================
 // Servo principal
@@ -98,216 +98,131 @@ const char html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Control Coche RC</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            background: #1a1a1a;
-            font-family: Arial, sans-serif;
-            color: white;
-            overflow: hidden;
-            touch-action: none;
-        }
-
-        h1 {
-            color: #00ff88;
-            margin: 20px 0;
-            font-size: 2em;
-            text-shadow: 0 0 10px #00ff88;
-        }
-
-        .panel-control {
-            background: #2d2d2d;
-            padding: 25px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 0 20px rgba(0,255,136,0.2);
-        }
-
-        .control-deslizante {
-            margin: 20px 0;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-            color: #00ff88;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            height: 10px;
-            background: #4a4a4a;
-            border-radius: 5px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 25px;
-            height: 25px;
-            background: #00ff88;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px #00ff88;
-        }
-
-        .valor-actual {
-            display: inline-block;
-            padding: 5px 15px;
-            background: #00ff88;
-            color: #1a1a1a;
-            border-radius: 5px;
-            margin-left: 10px;
-            font-weight: bold;
-        }
-
-        .botones-mando {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .boton {
-            padding: 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: #4a4a4a;
-            color: white;
-        }
-
-        .boton:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px #00ff88;
-        }
-
-        #avanzar { background: #00cc66; }
-        #reversa  { background: #ff4444; }
-        #parar    { background: #ffaa00; }
-    </style>
+<title>Control Coche RC</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1a1a;font-family:Arial,sans-serif;color:#fff;height:100vh;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+h1{color:#00ff88;text-align:center;font-size:1.3em;padding:7px 0;text-shadow:0 0 10px #00ff88;letter-spacing:2px}
+.pad{display:grid;grid-template-areas:"ax ax""jd jv";grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;height:calc(100vh - 44px);padding:8px;gap:12px}
+.jd{grid-area:jd}.jv{grid-area:jv}.ax{grid-area:ax}
+.jw{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.jl{font-size:.68em;color:#777;text-transform:uppercase;letter-spacing:1px}
+.jp{width:150px;height:150px;border-radius:50%;background:#252525;border:2px solid #00ff88;box-shadow:0 0 18px rgba(0,255,136,.22);position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none}
+.jp::before{content:'';position:absolute;background:rgba(0,255,136,.18)}
+.jd .jp::before{width:88%;height:2px;border-radius:1px}
+.jv .jp::before{width:2px;height:88%;border-radius:1px}
+.jt{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#44ffbb,#00bb55);box-shadow:0 0 14px #00ff88;pointer-events:none;will-change:transform;transition:box-shadow .1s}
+.jt.on{box-shadow:0 0 24px #00ff88,0 0 50px rgba(0,255,136,.4)}
+.jnum{font-size:.95em;font-weight:bold;color:#00ff88;background:#222;padding:4px 12px;border-radius:6px;min-width:64px;text-align:center;border:1px solid #444;font-family:monospace}
+.ax{display:flex;align-items:center;justify-content:center}
+.axb{background:#2b2b2b;border-radius:12px;padding:12px 18px;box-shadow:0 0 14px rgba(0,255,136,.12);width:100%;max-width:340px}
+.axh{display:flex;justify-content:space-between;margin-bottom:10px}
+.axh span{font-size:.82em;color:#00ff88}
+.axh span:last-child{background:#1a1a1a;padding:1px 8px;border-radius:4px;border:1px solid #333;font-family:monospace}
+input[type=range]{width:100%;height:8px;background:#333;border-radius:4px;outline:none;-webkit-appearance:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;background:#00ff88;border-radius:50%;box-shadow:0 0 8px #00ff88;cursor:pointer}
+@media(orientation:landscape){
+h1{font-size:1em;padding:4px 0}
+.pad{grid-template-areas:"jd ax jv";grid-template-columns:auto 1fr auto;grid-template-rows:1fr;height:calc(100vh - 32px);padding:6px;gap:14px;align-items:center}
+.jp{width:120px;height:120px}
+.jt{width:44px;height:44px}
+.axb{max-width:100%}
+}
+</style>
 </head>
 <body>
-    <h1>Control Remoto</h1>
-    
-    <div class="panel-control">
-        <div class="control-deslizante">
-            <label>Velocidad (85-230):</label>
-            <input type="range" min="85" max="230" step="5" value="170" id="velocidadSlider">
-            <span class="valor-actual" id="velocidadValor">170</span>
-        </div>
-
-        <div class="control-deslizante">
-            <label>Direccion (20-160):</label>
-            <input type="range" min="20" max="160" step="0.1" value="90" id="direccionSlider">
-            <span class="valor-actual" id="direccionValor">90</span>
-        </div>
-
-        <div class="botones-mando">
-            <button class="boton" id="avanzar">Avanzar</button>
-            <button class="boton" id="parar">Parar</button>
-            <button class="boton" id="reversa">Reversa</button>
-        </div>
-
-        <div class="control-deslizante">
-            <label>Servo auxiliar (20-160):</label>
-            <input type="range" min="20" max="160" step="5" value="90" id="servoAuxSlider">
-            <span class="valor-actual" id="servoAuxValor">90</span>
-        </div>
+<h1>Control Remoto</h1>
+<div class="pad">
+  <div class="jw jd">
+    <span class="jl">Direccion</span>
+    <div class="jp" id="joyDir"><div class="jt" id="tDir"></div></div>
+    <span class="jnum" id="vDir">90</span>
+  </div>
+  <div class="ax">
+    <div class="axb">
+      <div class="axh">
+        <span>Servo Auxiliar</span>
+        <span id="vAux">90</span>
+      </div>
+      <input type="range" min="20" max="160" step="5" value="90" id="slAux">
     </div>
-
-    <script>
-        const velocidadSlider = document.getElementById('velocidadSlider');
-        const direccionSlider = document.getElementById('direccionSlider');
-        const servoAuxSlider = document.getElementById('servoAuxSlider');
-
-        function throttle(fn, ms) {
-            let ultimo = 0;
-            let pendiente = null;
-            return function(...args) {
-                const ahora = Date.now();
-                const restante = ms - (ahora - ultimo);
-                clearTimeout(pendiente);
-                if (restante <= 0) {
-                    ultimo = ahora;
-                    fn(...args);
-                } else {
-                    pendiente = setTimeout(() => {
-                        ultimo = Date.now();
-                        fn(...args);
-                    }, restante);
-                }
-            };
-        }
-
-        function redondearA5(valor) {
-            return Math.round(valor / 5) * 5;
-        }
-
-        function enviarComando(comando) {
-            fetch(`/command?cmd=${comando}`).catch(() => {});
-        }
-
-        function _enviarVelocidad(valor) {
-            valor = redondearA5(valor);
-            valor = Math.max(85, Math.min(230, valor));
-            fetch(`/velocidad?value=${valor}`).catch(() => {});
-            document.getElementById("velocidadValor").textContent = valor;
-        }
-
-        function _enviarDireccion(valor) {
-            valor = Math.max(20, Math.min(160, valor));
-            fetch(`/direccion?value=${valor}`).catch(() => {});
-            document.getElementById("direccionValor").textContent = valor;
-        }
-
-        function _enviarServoAux(valor) {
-            valor = redondearA5(valor);
-            valor = Math.max(20, Math.min(160, valor));
-            fetch(`/servoaux?value=${valor}`).catch(() => {});
-            document.getElementById("servoAuxValor").textContent = valor;
-        }
-
-        const actualizarVelocidad = throttle(_enviarVelocidad, 80);
-        const actualizarDireccion = throttle(_enviarDireccion, 80);
-        const actualizarServoAux = throttle(_enviarServoAux, 80);
-
-        velocidadSlider.addEventListener('input', (e) => {
-            actualizarVelocidad(parseInt(e.target.value));
-        });
-
-        direccionSlider.addEventListener('input', (e) => {
-            actualizarDireccion(parseFloat(e.target.value));
-        });
-
-        servoAuxSlider.addEventListener('input', (e) => {
-            actualizarServoAux(parseInt(e.target.value));
-        });
-
-        document.getElementById('avanzar').addEventListener('click', () => {
-            enviarComando('avanzar');
-        });
-
-        document.getElementById('reversa').addEventListener('click', () => {
-            enviarComando('reversa');
-        });
-
-        document.getElementById('parar').addEventListener('click', () => {
-            enviarComando('parar');
-        });
-    </script>
+  </div>
+  <div class="jw jv">
+    <span class="jl">Velocidad</span>
+    <div class="jp" id="joyVel"><div class="jt" id="tVel"></div></div>
+    <span class="jnum" id="vVel">0</span>
+  </div>
+</div>
+<script>
+function throttle(fn,ms){
+  var t=0,p=null;
+  var f=function(){var n=Date.now(),r=ms-(n-t),a=arguments;clearTimeout(p);if(r<=0){t=n;fn.apply(null,a)}else p=setTimeout(function(){t=Date.now();fn.apply(null,a)},r)};
+  f.cancel=function(){clearTimeout(p)};
+  return f;
+}
+function r5(v){return Math.round(v/5)*5}
+function joy(pid,thid,axis,onMove,onRelease){
+  var pad=document.getElementById(pid),th=document.getElementById(thid);
+  var on=false,cx=0,cy=0,tId=-1;
+  function R(){return(pad.clientWidth-th.clientWidth)/2}
+  function move(x,y){
+    var r=R(),dx=x-cx,dy=y-cy;
+    if(axis==='x'){dx=Math.max(-r,Math.min(r,dx));dy=0;onMove(dx/r)}
+    else{dy=Math.max(-r,Math.min(r,dy));dx=0;onMove(dy/r)}
+    th.style.transform='translate('+dx+'px,'+dy+'px)';
+  }
+  function release(){on=false;tId=-1;th.classList.remove('on');th.style.transform='translate(0,0)';onRelease()}
+  pad.addEventListener('touchstart',function(e){
+    e.preventDefault();
+    if(on)return;
+    var t=e.changedTouches[0];
+    tId=t.identifier;on=true;th.classList.add('on');
+    var rc=pad.getBoundingClientRect();cx=rc.left+rc.width/2;cy=rc.top+rc.height/2;
+    move(t.clientX,t.clientY);
+  },{passive:false});
+  document.addEventListener('touchmove',function(e){
+    if(!on)return;
+    for(var i=0;i<e.changedTouches.length;i++){
+      if(e.changedTouches[i].identifier===tId){move(e.changedTouches[i].clientX,e.changedTouches[i].clientY);return}
+    }
+  },{passive:false});
+  document.addEventListener('touchend',function(e){
+    if(!on)return;
+    for(var i=0;i<e.changedTouches.length;i++){if(e.changedTouches[i].identifier===tId){release();return}}
+  });
+  document.addEventListener('touchcancel',function(e){
+    if(!on)return;
+    for(var i=0;i<e.changedTouches.length;i++){if(e.changedTouches[i].identifier===tId){release();return}}
+  });
+  pad.addEventListener('mousedown',function(e){
+    e.preventDefault();on=true;th.classList.add('on');
+    var rc=pad.getBoundingClientRect();cx=rc.left+rc.width/2;cy=rc.top+rc.height/2;
+    move(e.clientX,e.clientY);
+  });
+  document.addEventListener('mousemove',function(e){if(on&&tId===-1)move(e.clientX,e.clientY)});
+  document.addEventListener('mouseup',function(){if(on&&tId===-1)release()});
+}
+var sDir=throttle(function(n){
+  var a=r5(Math.max(20,Math.min(160,Math.round(90+n*70))));
+  document.getElementById('vDir').textContent=a;
+  fetch('/direccion?value='+a).catch(function(){});
+},80);
+function rDir(){sDir.cancel();document.getElementById('vDir').textContent=90;fetch('/direccion?value=90').catch(function(){})}
+function mapV(n){var d=.05,a=Math.abs(n);if(a<d)return 0;var s=Math.round(85+(a-d)/(1-d)*170);return n<0?s:-s}
+var lm=null;
+var sVel=throttle(function(n){
+  var v=mapV(n);
+  document.getElementById('vVel').textContent=v;
+  if(v!==lm){lm=v;fetch('/motor?value='+v).catch(function(){})}
+},80);
+function rVel(){sVel.cancel();lm=0;document.getElementById('vVel').textContent=0;fetch('/motor?value=0').catch(function(){})}
+joy('joyDir','tDir','x',sDir,rDir);
+joy('joyVel','tVel','y',sVel,rVel);
+var sl=document.getElementById('slAux');
+var sAux=throttle(function(v){v=r5(Math.max(20,Math.min(160,v)));document.getElementById('vAux').textContent=v;fetch('/servoaux?value='+v).catch(function(){})},80);
+sl.addEventListener('input',function(e){sAux(parseInt(e.target.value))});
+</script>
 </body>
 </html>
 )rawliteral";
@@ -598,6 +513,45 @@ void configurarRutas() {
 
         if (abs(anguloObjetivoAux - nuevoAnguloAux) >= 2) {
             anguloObjetivoAux = nuevoAnguloAux;
+        }
+
+        server.send(200, "text/plain", "OK");
+    });
+
+    server.on("/motor", []() {
+        if (!server.hasArg("value")) {
+            server.send(400, "text/plain", "Falta value");
+            return;
+        }
+
+        unsigned long ahora = millis();
+        if (ahora - ultimaVelocidadAceptadaMs < minIntervaloVelocidadMs) {
+            server.send(200, "text/plain", "OK");
+            return;
+        }
+        ultimaVelocidadAceptadaMs = ahora;
+
+        int val = server.arg("value").toInt();
+        val = constrain(val, -255, 255);
+
+        if (val == 0) {
+            modo = 'P';
+            velocidad = 0;
+            digitalWrite(In2, LOW);
+            digitalWrite(In3, LOW);
+            ledcWrite(0, 0);
+        } else if (val > 0) {
+            modo = 'A';
+            velocidad = val;
+            digitalWrite(In2, LOW);
+            digitalWrite(In3, HIGH);
+            ledcWrite(0, velocidad);
+        } else {
+            modo = 'R';
+            velocidad = -val;
+            digitalWrite(In2, HIGH);
+            digitalWrite(In3, LOW);
+            ledcWrite(0, velocidad);
         }
 
         server.send(200, "text/plain", "OK");
