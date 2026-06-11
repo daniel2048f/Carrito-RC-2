@@ -132,7 +132,7 @@ h1{font-size:1em;padding:4px 0}
 </style>
 </head>
 <body>
-<h1>Control Remoto</h1>
+<h1>Carro RC</h1>
 <div class="pad">
   <div class="jw jd">
     <span class="jl">Direccion</span>
@@ -149,9 +149,10 @@ h1{font-size:1em;padding:4px 0}
     </div>
   </div>
   <div class="jw jv">
-    <span class="jl">Velocidad</span>
+    <span class="jl">Avanzar</span>
     <div class="jp" id="joyVel"><div class="jt" id="tVel"></div></div>
     <span class="jnum" id="vVel">0</span>
+    <span class="jl">Reversa</span>
   </div>
 </div>
 <script>
@@ -204,12 +205,12 @@ function joy(pid,thid,axis,onMove,onRelease){
   document.addEventListener('mouseup',function(){if(on&&tId===-1)release()});
 }
 var sDir=throttle(function(n){
-  var a=r5(Math.max(20,Math.min(160,Math.round(90+n*70))));
+  var a=+(Math.max(20,Math.min(160,90-n*70)).toFixed(1));
   document.getElementById('vDir').textContent=a;
   fetch('/direccion?value='+a).catch(function(){});
 },80);
 function rDir(){sDir.cancel();document.getElementById('vDir').textContent=90;fetch('/direccion?value=90').catch(function(){})}
-function mapV(n){var d=.05,a=Math.abs(n);if(a<d)return 0;var s=Math.round(85+(a-d)/(1-d)*170);return n<0?s:-s}
+function mapV(n){var d=.05,a=Math.abs(n);if(a<d)return 0;var s=r5(Math.round(85+(a-d)/(1-d)*170));return n<0?s:-s}
 var lm=null;
 var sVel=throttle(function(n){
   var v=mapV(n);
@@ -401,6 +402,7 @@ void actualizarServoAuxSuave() {
 // ==========================
 void configurarRutas() {
     server.on("/", []() {
+        server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         server.send_P(200, "text/html", html);
     });
 
@@ -476,18 +478,20 @@ void configurarRutas() {
             return;
         }
 
-        unsigned long ahora = millis();
-        if (ahora - ultimaDireccionAceptadaMs < minIntervaloDireccionMs) {
-            server.send(200, "text/plain", "OK");
-            return;
-        }
-        ultimaDireccionAceptadaMs = ahora;
-
         float nuevoAnguloF = server.arg("value").toFloat();
         nuevoAnguloF = constrain(nuevoAnguloF, 20.0f, 160.0f);
         int nuevoAngulo = (int)round(nuevoAnguloF);
 
-        if (abs(anguloObjetivo - nuevoAngulo) >= 2) {
+        if (nuevoAngulo != 90) {
+            unsigned long ahora = millis();
+            if (ahora - ultimaDireccionAceptadaMs < minIntervaloDireccionMs) {
+                server.send(200, "text/plain", "OK");
+                return;
+            }
+            ultimaDireccionAceptadaMs = ahora;
+        }
+
+        if (nuevoAngulo == 90 || abs(anguloObjetivo - nuevoAngulo) >= 2) {
             anguloObjetivo = nuevoAngulo;
         }
 
@@ -524,15 +528,17 @@ void configurarRutas() {
             return;
         }
 
-        unsigned long ahora = millis();
-        if (ahora - ultimaVelocidadAceptadaMs < minIntervaloVelocidadMs) {
-            server.send(200, "text/plain", "OK");
-            return;
-        }
-        ultimaVelocidadAceptadaMs = ahora;
-
         int val = server.arg("value").toInt();
         val = constrain(val, -255, 255);
+
+        if (val != 0) {
+            unsigned long ahora = millis();
+            if (ahora - ultimaVelocidadAceptadaMs < minIntervaloVelocidadMs) {
+                server.send(200, "text/plain", "OK");
+                return;
+            }
+            ultimaVelocidadAceptadaMs = ahora;
+        }
 
         if (val == 0) {
             modo = 'P';
