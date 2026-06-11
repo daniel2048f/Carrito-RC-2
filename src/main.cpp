@@ -108,11 +108,11 @@ h1{color:#00ff88;text-align:center;font-size:1.3em;padding:7px 0;text-shadow:0 0
 .jd{grid-area:jd}.jv{grid-area:jv}.ax{grid-area:ax}
 .jw{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
 .jl{font-size:.68em;color:#777;text-transform:uppercase;letter-spacing:1px}
-.jp{width:150px;height:150px;border-radius:50%;background:#252525;border:2px solid #00ff88;box-shadow:0 0 18px rgba(0,255,136,.22);position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none}
+.jp{width:min(44vw,200px);height:min(44vw,200px);border-radius:50%;background:#252525;border:2px solid #00ff88;box-shadow:0 0 18px rgba(0,255,136,.22);position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none}
 .jp::before{content:'';position:absolute;background:rgba(0,255,136,.18)}
 .jd .jp::before{width:88%;height:2px;border-radius:1px}
 .jv .jp::before{width:2px;height:88%;border-radius:1px}
-.jt{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#44ffbb,#00bb55);box-shadow:0 0 14px #00ff88;pointer-events:none;will-change:transform;transition:box-shadow .1s}
+.jt{width:min(15vw,70px);height:min(15vw,70px);border-radius:50%;background:radial-gradient(circle at 35% 35%,#44ffbb,#00bb55);box-shadow:0 0 14px #00ff88;pointer-events:none;will-change:transform;transition:box-shadow .1s}
 .jt.on{box-shadow:0 0 24px #00ff88,0 0 50px rgba(0,255,136,.4)}
 .jnum{font-size:.95em;font-weight:bold;color:#00ff88;background:#222;padding:4px 12px;border-radius:6px;min-width:64px;text-align:center;border:1px solid #444;font-family:monospace}
 .ax{display:flex;align-items:center;justify-content:center}
@@ -125,8 +125,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 @media(orientation:landscape){
 h1{font-size:1em;padding:4px 0}
 .pad{grid-template-areas:"jd ax jv";grid-template-columns:auto 1fr auto;grid-template-rows:1fr;height:calc(100vh - 32px);padding:6px;gap:14px;align-items:center}
-.jp{width:120px;height:120px}
-.jt{width:44px;height:44px}
+.jp{width:min(240px,calc(100vh - 112px));height:min(240px,calc(100vh - 112px))}
+.jt{width:84px;height:84px}
 .axb{max-width:100%}
 }
 </style>
