@@ -95,134 +95,114 @@ int redondearA5(int valor) {
 // Frontend
 // ==========================
 const char html[] PROGMEM = R"rawliteral(
-<!DOCTYPE HTML>
-<html>
-<head>
+<!DOCTYPE HTML><html><head>
 <title>Control Coche RC</title>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#1a1a1a;font-family:Arial,sans-serif;color:#fff;height:100vh;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
-h1{color:#00ff88;text-align:center;font-size:1.3em;padding:7px 0;text-shadow:0 0 10px #00ff88;letter-spacing:2px}
-.pad{display:grid;grid-template-areas:"ax ax""jd jv";grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;height:calc(100vh - 44px);padding:8px;gap:12px}
-.jd{grid-area:jd}.jv{grid-area:jv}.ax{grid-area:ax}
-.jw{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
-.jl{font-size:.68em;color:#777;text-transform:uppercase;letter-spacing:1px}
-.jp{width:min(44vw,200px);height:min(44vw,200px);border-radius:50%;background:#252525;border:2px solid #00ff88;box-shadow:0 0 18px rgba(0,255,136,.22);position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none}
-.jp::before{content:'';position:absolute;background:rgba(0,255,136,.18)}
-.jd .jp::before{width:88%;height:2px;border-radius:1px}
-.jv .jp::before{width:2px;height:88%;border-radius:1px}
-.jt{width:min(15vw,70px);height:min(15vw,70px);border-radius:50%;background:radial-gradient(circle at 35% 35%,#44ffbb,#00bb55);box-shadow:0 0 14px #00ff88;pointer-events:none;will-change:transform;transition:box-shadow .1s}
-.jt.on{box-shadow:0 0 24px #00ff88,0 0 50px rgba(0,255,136,.4)}
-.jnum{font-size:.95em;font-weight:bold;color:#00ff88;background:#222;padding:4px 12px;border-radius:6px;min-width:64px;text-align:center;border:1px solid #444;font-family:monospace}
-.ax{display:flex;align-items:center;justify-content:center}
-.axb{background:#2b2b2b;border-radius:12px;padding:12px 18px;box-shadow:0 0 14px rgba(0,255,136,.12);width:100%;max-width:340px}
-.axh{display:flex;justify-content:space-between;margin-bottom:10px}
-.axh span{font-size:.82em;color:#00ff88}
-.axh span:last-child{background:#1a1a1a;padding:1px 8px;border-radius:4px;border:1px solid #333;font-family:monospace}
-input[type=range]{width:100%;height:8px;background:#333;border-radius:4px;outline:none;-webkit-appearance:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;background:#00ff88;border-radius:50%;box-shadow:0 0 8px #00ff88;cursor:pointer}
-@media(orientation:landscape){
-h1{font-size:1em;padding:4px 0}
-.pad{grid-template-areas:"jd ax jv";grid-template-columns:auto 1fr auto;grid-template-rows:1fr;height:calc(100vh - 32px);padding:6px;gap:14px;align-items:center}
-.jp{width:min(240px,calc(100vh - 112px));height:min(240px,calc(100vh - 112px))}
-.jt{width:84px;height:84px}
-.axb{max-width:100%}
-}
+html,body{height:100%;overflow:hidden}
+body{background:#1a1a1a;font-family:Arial,sans-serif;color:#fff;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:none}
+h1{color:#00ff88;text-align:center;font-size:1em;padding:4px 0;text-shadow:0 0 10px #00ff88;letter-spacing:2px;flex-shrink:0}
+.lay{display:grid;grid-template-columns:1fr auto;flex:1;min-height:0;padding:6px;gap:10px}
+.cl{display:flex;flex-direction:column;min-height:0}
+.cr{display:flex;flex-direction:row;align-items:stretch;gap:65px;min-height:0}
+.sp{flex:1;min-height:0}
+.cb{background:#252525;border-radius:10px;padding:8px 12px;border:1px solid #333;flex-shrink:0;max-width:48vw}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.lbl{font-size:.68em;color:#00ff88;text-transform:uppercase;letter-spacing:1px}
+.num{font-size:.85em;font-weight:bold;color:#00ff88;background:#1a1a1a;padding:2px 8px;border-radius:4px;border:1px solid #333;font-family:monospace}
+.hsl{position:relative;height:36px;display:flex;align-items:center;touch-action:none;cursor:pointer}
+.hsl .trk{position:absolute;left:0;right:0;height:8px;background:#333;border-radius:4px}
+.hsl .thm{position:absolute;width:30px;height:30px;background:#00ff88;border-radius:50%;box-shadow:0 0 8px #00ff88;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+.cbtn{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;flex-shrink:0;align-self:flex-end;padding-bottom:6px}
+.cvl{display:flex;flex-direction:column;align-items:center;min-height:0;flex-shrink:0}
+.vw{flex:1;display:flex;flex-direction:column;align-items:center;width:100%;min-height:0;padding-bottom:22px}
+.vsl{width:40px;flex:1;position:relative;touch-action:none;cursor:pointer}
+.vsl .trk{position:absolute;top:0;bottom:0;left:50%;width:8px;transform:translateX(-50%);background:#333;border-radius:4px}
+.vsl .thm{position:absolute;width:38px;height:38px;background:#00ff88;border-radius:50%;box-shadow:0 0 10px #00ff88;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.btn{background:#252525;color:#00ff88;border:1px solid #444;border-radius:8px;padding:14px 6px;font-size:.62em;font-weight:bold;cursor:pointer;text-transform:uppercase;letter-spacing:.3px;touch-action:manipulation;width:72px}
+.btn.on{background:#00ff88;color:#1a1a1a;box-shadow:0 0 10px rgba(0,255,136,.5)}
 </style>
 </head>
 <body>
 <h1>Carro RC</h1>
-<div class="pad">
-  <div class="jw jd">
-    <span class="jl">Direccion</span>
-    <div class="jp" id="joyDir"><div class="jt" id="tDir"></div></div>
-    <span class="jnum" id="vDir">90</span>
-  </div>
-  <div class="ax">
-    <div class="axb">
-      <div class="axh">
-        <span>Servo Auxiliar</span>
-        <span id="vAux">90</span>
-      </div>
-      <input type="range" min="20" max="160" step="5" value="90" id="slAux">
+<div class="lay">
+  <div class="cl">
+    <div class="sp"></div>
+    <div class="cb">
+      <div class="ch"><span class="lbl">Direccion</span><span class="num" id="vDir">90</span></div>
+      <div class="hsl" id="slDir"><div class="trk"></div><div class="thm"></div></div>
+    </div>
+    <div class="sp"></div>
+    <div class="cb">
+      <div class="ch"><span class="lbl">Servo Auxiliar</span><span class="num" id="vAux">90</span></div>
+      <div class="hsl" id="slAux"><div class="trk"></div><div class="thm"></div></div>
     </div>
   </div>
-  <div class="jw jv">
-    <span class="jl">Avanzar</span>
-    <div class="jp" id="joyVel"><div class="jt" id="tVel"></div></div>
-    <span class="jnum" id="vVel">0</span>
-    <span class="jl">Reversa</span>
+  <div class="cr">
+    <div class="cbtn">
+      <button class="btn" id="bRev">Reversa</button>
+      <button class="btn on" id="bAde">Adelante</button>
+    </div>
+    <div class="cvl">
+      <span class="lbl">Velocidad</span>
+      <span class="num" id="vVel">0</span>
+      <div class="vw">
+        <div class="vsl" id="slVel"><div class="trk"></div><div class="thm"></div></div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
-function throttle(fn,ms){
-  var t=0,p=null;
-  var f=function(){var n=Date.now(),r=ms-(n-t),a=arguments;clearTimeout(p);if(r<=0){t=n;fn.apply(null,a)}else p=setTimeout(function(){t=Date.now();fn.apply(null,a)},r)};
-  f.cancel=function(){clearTimeout(p)};
-  return f;
-}
+function throttle(fn,ms){var t=0,p=null;var f=function(){var n=Date.now(),r=ms-(n-t),a=arguments;clearTimeout(p);if(r<=0){t=n;fn.apply(null,a)}else p=setTimeout(function(){t=Date.now();fn.apply(null,a)},r)};f.cancel=function(){clearTimeout(p)};return f}
 function r5(v){return Math.round(v/5)*5}
-function joy(pid,thid,axis,onMove,onRelease){
-  var pad=document.getElementById(pid),th=document.getElementById(thid);
-  var on=false,cx=0,cy=0,tId=-1;
-  function R(){return(pad.clientWidth-th.clientWidth)/2}
-  function move(x,y){
-    var r=R(),dx=x-cx,dy=y-cy;
-    if(axis==='x'){dx=Math.max(-r,Math.min(r,dx));dy=0;onMove(dx/r)}
-    else{dy=Math.max(-r,Math.min(r,dy));dx=0;onMove(dy/r)}
-    th.style.transform='translate('+dx+'px,'+dy+'px)';
-  }
-  function release(){on=false;tId=-1;th.classList.remove('on');th.style.transform='translate(0,0)';onRelease()}
-  pad.addEventListener('touchstart',function(e){
-    e.preventDefault();
-    if(on)return;
-    var t=e.changedTouches[0];
-    tId=t.identifier;on=true;th.classList.add('on');
-    var rc=pad.getBoundingClientRect();cx=rc.left+rc.width/2;cy=rc.top+rc.height/2;
-    move(t.clientX,t.clientY);
-  },{passive:false});
-  document.addEventListener('touchmove',function(e){
-    if(!on)return;
-    for(var i=0;i<e.changedTouches.length;i++){
-      if(e.changedTouches[i].identifier===tId){move(e.changedTouches[i].clientX,e.changedTouches[i].clientY);return}
-    }
-  },{passive:false});
-  document.addEventListener('touchend',function(e){
-    if(!on)return;
-    for(var i=0;i<e.changedTouches.length;i++){if(e.changedTouches[i].identifier===tId){release();return}}
-  });
-  document.addEventListener('touchcancel',function(e){
-    if(!on)return;
-    for(var i=0;i<e.changedTouches.length;i++){if(e.changedTouches[i].identifier===tId){release();return}}
-  });
-  pad.addEventListener('mousedown',function(e){
-    e.preventDefault();on=true;th.classList.add('on');
-    var rc=pad.getBoundingClientRect();cx=rc.left+rc.width/2;cy=rc.top+rc.height/2;
-    move(e.clientX,e.clientY);
-  });
-  document.addEventListener('mousemove',function(e){if(on&&tId===-1)move(e.clientX,e.clientY)});
-  document.addEventListener('mouseup',function(){if(on&&tId===-1)release()});
-}
-var sDir=throttle(function(n){
-  var a=+(Math.max(20,Math.min(160,90-n*70)).toFixed(1));
-  document.getElementById('vDir').textContent=a;
-  fetch('/direccion?value='+a).catch(function(){});
-},80);
-function rDir(){sDir.cancel();document.getElementById('vDir').textContent=90;fetch('/direccion?value=90').catch(function(){})}
-function mapV(n){var d=.05,a=Math.abs(n);if(a<d)return 0;var s=r5(Math.round(85+(a-d)/(1-d)*170));return n<0?s:-s}
-var lm=null;
-var sVel=throttle(function(n){
-  var v=mapV(n);
-  document.getElementById('vVel').textContent=v;
-  if(v!==lm){lm=v;fetch('/motor?value='+v).catch(function(){})}
-},80);
-function rVel(){sVel.cancel();lm=0;document.getElementById('vVel').textContent=0;fetch('/motor?value=0').catch(function(){})}
-joy('joyDir','tDir','x',sDir,rDir);
-joy('joyVel','tVel','y',sVel,rVel);
-var sl=document.getElementById('slAux');
-var sAux=throttle(function(v){v=r5(Math.max(20,Math.min(160,v)));document.getElementById('vAux').textContent=v;fetch('/servoaux?value='+v).catch(function(){})},80);
-sl.addEventListener('input',function(e){sAux(parseInt(e.target.value))});
+var curDir=1,curRaw=0;
+function applyMotor(){var a=curRaw===0?0:r5(85+curRaw);fetch('/motor?value='+(a===0?0:curDir*a)).catch(function(){})}
+function setDir(d){curDir=d==='avanzar'?1:-1;document.getElementById('bAde').className='btn'+(curDir===1?' on':'');document.getElementById('bRev').className='btn'+(curDir===-1?' on':'');applyMotor()}
+document.getElementById('bRev').addEventListener('pointerdown',function(e){e.preventDefault();setDir('reversa')});
+document.getElementById('bAde').addEventListener('pointerdown',function(e){e.preventDefault();setDir('avanzar')});
+// Direction slider — custom pointer handling with explicit capture
+(function(){
+  var el=document.getElementById('slDir'),thm=el.querySelector('.thm');
+  var pid=null,rect;
+  function pos(v){thm.style.left=((v-20)/140*100)+'%'}
+  pos(90);
+  var tDir=throttle(function(s){document.getElementById('vDir').textContent=s;fetch('/direccion?value='+s).catch(function(){})},80);
+  function upd(cx){var r=Math.max(0,Math.min(1,(cx-rect.left)/rect.width));var v=Math.round(r*28)*5+20;pos(v);tDir(180-v)}
+  function rel(){pid=null;pos(90);tDir.cancel();document.getElementById('vDir').textContent=90;fetch('/direccion?value=90').catch(function(){})}
+  el.addEventListener('pointerdown',function(e){if(pid!==null)return;pid=e.pointerId;el.setPointerCapture(pid);rect=el.getBoundingClientRect();upd(e.clientX)});
+  el.addEventListener('pointermove',function(e){if(e.pointerId!==pid)return;upd(e.clientX)});
+  el.addEventListener('pointerup',function(e){if(e.pointerId!==pid)return;rel()});
+  el.addEventListener('pointercancel',function(e){if(e.pointerId!==pid)return;rel()});
+})();
+// Velocity slider — custom pointer handling, thumb bottom=stop top=max
+(function(){
+  var el=document.getElementById('slVel'),thm=el.querySelector('.thm');
+  var pid=null,rect;
+  function pos(raw){thm.style.top=((1-raw/145)*100)+'%'}
+  pos(0);
+  var tVel=throttle(function(a){fetch('/motor?value='+(a===0?0:curDir*a)).catch(function(){})},80);
+  function upd(cy){var r=1-Math.max(0,Math.min(1,(cy-rect.top)/rect.height));curRaw=Math.round(r*29)*5;pos(curRaw);var a=curRaw===0?0:r5(85+curRaw);document.getElementById('vVel').textContent=a;tVel(a)}
+  function end(e){if(e.pointerId!==pid)return;pid=null}
+  el.addEventListener('pointerdown',function(e){if(pid!==null)return;pid=e.pointerId;el.setPointerCapture(pid);rect=el.getBoundingClientRect();upd(e.clientY)});
+  el.addEventListener('pointermove',function(e){if(e.pointerId!==pid)return;upd(e.clientY)});
+  el.addEventListener('pointerup',end);
+  el.addEventListener('pointercancel',end);
+})();
+// Aux slider — custom pointer handling
+(function(){
+  var el=document.getElementById('slAux'),thm=el.querySelector('.thm');
+  var pid=null,rect;
+  function pos(v){thm.style.left=((v-20)/140*100)+'%'}
+  pos(90);
+  var tAux=throttle(function(v){document.getElementById('vAux').textContent=v;fetch('/servoaux?value='+v).catch(function(){})},80);
+  function upd(cx){var r=Math.max(0,Math.min(1,(cx-rect.left)/rect.width));var v=Math.round(r*28)*5+20;pos(v);tAux(v)}
+  function end(e){if(e.pointerId!==pid)return;pid=null}
+  el.addEventListener('pointerdown',function(e){if(pid!==null)return;pid=e.pointerId;el.setPointerCapture(pid);rect=el.getBoundingClientRect();upd(e.clientX)});
+  el.addEventListener('pointermove',function(e){if(e.pointerId!==pid)return;upd(e.clientX)});
+  el.addEventListener('pointerup',end);
+  el.addEventListener('pointercancel',end);
+})();
 </script>
 </body>
 </html>
