@@ -115,7 +115,7 @@ h1{color:#00ff88;text-align:center;font-size:1em;padding:4px 0;text-shadow:0 0 1
 .hsl .trk{position:absolute;left:0;right:0;height:8px;background:#333;border-radius:4px}
 .hsl .thm{position:absolute;width:30px;height:30px;background:#00ff88;border-radius:50%;box-shadow:0 0 8px #00ff88;top:50%;transform:translate(-50%,-50%);pointer-events:none}
 .cbtn{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;flex-shrink:0;align-self:flex-end;padding-bottom:6px}
-.cvl{display:flex;flex-direction:column;align-items:center;min-height:0;flex-shrink:0}
+.cvl{display:flex;flex-direction:column;align-items:center;min-height:0;flex-shrink:0;padding-right:50px}
 .vw{flex:1;display:flex;flex-direction:column;align-items:center;width:100%;min-height:0;padding-bottom:22px}
 .vsl{width:40px;flex:1;position:relative;touch-action:none;cursor:pointer}
 .vsl .trk{position:absolute;top:0;bottom:0;left:50%;width:8px;transform:translateX(-50%);background:#333;border-radius:4px}
