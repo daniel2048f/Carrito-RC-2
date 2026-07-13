@@ -58,6 +58,9 @@ const unsigned long detachServoDelayMs = 300;
 int anguloServoAux = 90;
 volatile int anguloObjetivoAux = 90;
 bool servoAuxAdjunto = false;
+bool controlServoAuxHabilitado = true;
+int anguloOscilacionAux = 90;
+bool oscilacionAuxSubiendo = true;
 
 unsigned long ultimoPasoServoAux = 0;
 const unsigned long intervaloServoAuxMs = 15;
@@ -114,6 +117,9 @@ h1{color:#00ff88;text-align:center;font-size:1em;padding:4px 0;text-shadow:0 0 1
 .hsl{position:relative;height:36px;display:flex;align-items:center;touch-action:none;cursor:pointer}
 .hsl .trk{position:absolute;left:0;right:0;height:8px;background:#333;border-radius:4px}
 .hsl .thm{position:absolute;width:30px;height:30px;background:#00ff88;border-radius:50%;box-shadow:0 0 8px #00ff88;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+.hsl.off{opacity:.35;cursor:not-allowed}
+.auxctl{display:flex;align-items:center;gap:6px}
+.auxctl input{accent-color:#00ff88}
 .cbtn{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;flex-shrink:0;align-self:flex-end;padding-bottom:6px}
 .cvl{display:flex;flex-direction:column;align-items:center;min-height:0;flex-shrink:0;padding-right:50px}
 .vw{flex:1;display:flex;flex-direction:column;align-items:center;width:100%;min-height:0;padding-bottom:22px}
@@ -135,7 +141,7 @@ h1{color:#00ff88;text-align:center;font-size:1em;padding:4px 0;text-shadow:0 0 1
     </div>
     <div class="sp"></div>
     <div class="cb">
-      <div class="ch"><span class="lbl">Servo Auxiliar</span><span class="num" id="vAux">90</span></div>
+      <div class="ch"><label class="auxctl"><input type="checkbox" id="enAux"><span class="lbl">Giro automatico</span></label><span class="num" id="vAux">90</span></div>
       <div class="hsl" id="slAux"><div class="trk"></div><div class="thm"></div></div>
     </div>
   </div>
@@ -191,14 +197,15 @@ document.getElementById('bAde').addEventListener('pointerdown',function(e){e.pre
 })();
 // Aux slider — custom pointer handling
 (function(){
-  var el=document.getElementById('slAux'),thm=el.querySelector('.thm');
-  var pid=null,rect;
+  var el=document.getElementById('slAux'),thm=el.querySelector('.thm'),en=document.getElementById('enAux');
+  var pid=null,rect,auxValue=90;
   function pos(v){thm.style.left=((v-20)/140*100)+'%'}
   pos(90);
   var tAux=throttle(function(v){document.getElementById('vAux').textContent=v;fetch('/servoaux?value='+v).catch(function(){})},80);
-  function upd(cx){var r=Math.max(0,Math.min(1,(cx-rect.left)/rect.width));var v=Math.round(r*28)*5+20;pos(v);tAux(v)}
+  function upd(cx){var r=Math.max(0,Math.min(1,(cx-rect.left)/rect.width));var v=Math.round(r*28)*5+20;auxValue=v;pos(v);tAux(v)}
   function end(e){if(e.pointerId!==pid)return;pid=null}
-  el.addEventListener('pointerdown',function(e){if(pid!==null)return;pid=e.pointerId;el.setPointerCapture(pid);rect=el.getBoundingClientRect();upd(e.clientX)});
+  en.addEventListener('change',function(){var automatico=en.checked;tAux.cancel();el.className='hsl'+(automatico?' off':'');document.getElementById('vAux').textContent=automatico?'AUTO':auxValue;fetch('/servoauxmodo?enabled='+(automatico?0:1)).catch(function(){})});
+  el.addEventListener('pointerdown',function(e){if(en.checked||pid!==null)return;pid=e.pointerId;el.setPointerCapture(pid);rect=el.getBoundingClientRect();upd(e.clientX)});
   el.addEventListener('pointermove',function(e){if(e.pointerId!==pid)return;upd(e.clientX)});
   el.addEventListener('pointerup',end);
   el.addEventListener('pointercancel',end);
@@ -348,6 +355,32 @@ void desadjuntarServoAuxSiQuieto() {
 void actualizarServoAuxSuave() {
     unsigned long ahora = millis();
 
+    if (!controlServoAuxHabilitado) {
+        if (ahora - ultimoPasoServoAux < intervaloServoAuxMs) {
+            return;
+        }
+        ultimoPasoServoAux = ahora;
+
+        adjuntarServoAuxSiHaceFalta();
+
+        if (oscilacionAuxSubiendo) {
+            anguloOscilacionAux += pasoServoAux;
+            if (anguloOscilacionAux >= 180) {
+                anguloOscilacionAux = 180;
+                oscilacionAuxSubiendo = false;
+            }
+        } else {
+            anguloOscilacionAux -= pasoServoAux;
+            if (anguloOscilacionAux <= 0) {
+                anguloOscilacionAux = 0;
+                oscilacionAuxSubiendo = true;
+            }
+        }
+
+        servoAuxiliar.write(anguloOscilacionAux);
+        return;
+    }
+
     if (anguloServoAux == anguloObjetivoAux) {
         desadjuntarServoAuxSiQuieto();
         return;
@@ -484,6 +517,11 @@ void configurarRutas() {
             return;
         }
 
+        if (!controlServoAuxHabilitado) {
+            server.send(200, "text/plain", "OK");
+            return;
+        }
+
         unsigned long ahora = millis();
         if (ahora - ultimaDireccionAuxAceptadaMs < minIntervaloDireccionAuxMs) {
             server.send(200, "text/plain", "OK");
@@ -499,6 +537,25 @@ void configurarRutas() {
             anguloObjetivoAux = nuevoAnguloAux;
         }
 
+        server.send(200, "text/plain", "OK");
+    });
+
+    server.on("/servoauxmodo", []() {
+        if (!server.hasArg("enabled")) {
+            server.send(400, "text/plain", "Falta enabled");
+            return;
+        }
+
+        controlServoAuxHabilitado = server.arg("enabled").toInt() != 0;
+        servoAuxQuietoDesde = 0;
+        adjuntarServoAuxSiHaceFalta();
+        if (controlServoAuxHabilitado) {
+            servoAuxiliar.write(anguloServoAux);
+        } else {
+            anguloOscilacionAux = anguloServoAux;
+            oscilacionAuxSubiendo = anguloOscilacionAux < 180;
+            servoAuxiliar.write(anguloOscilacionAux);
+        }
         server.send(200, "text/plain", "OK");
     });
 
